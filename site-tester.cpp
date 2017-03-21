@@ -33,8 +33,11 @@ int main(int argc, char * argv[]){
     
     Parser web_content(site_content[0]);  
     string content = web_content.download(); 
-    cout<<content<<endl; 
-
+    int freq; 
+    for(int i=0; i<search_content.size(); i++){
+        freq = web_content.parse(search_content[i]);
+        cout<<search_content[i]<<" : "<<freq<<endl; 
+    }
 }
 
 

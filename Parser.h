@@ -85,6 +85,18 @@ class Parser{
             return content; 
 
         }
+        int parse(string keyword){
+            int count = 0; 
+            size_t pos = content.find(keyword, 0); //first occurence
+            while(pos != string::npos){
+                count++; 
+                pos = content.find(keyword, pos+1); 
+            }
+            return count; 
+        }
+
+
+
     private:
         string url; 
         string content; 
