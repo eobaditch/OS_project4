@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
+#include <stdio.h>
 #include <curl/curl.h>
 #include <stdlib.h>
 
@@ -17,7 +19,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void
   size_t realsize = size * nmemb;
   struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
-  mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+  mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
   if(mem->memory == NULL) {
     /* out of memory! */
     printf("not enough memory (realloc returned NULL)\n");
@@ -55,7 +57,7 @@ int main(int argc, char * argv[]){
 
     struct MemoryStruct chunk;
 
-    chunk.memory = malloc(1);  /* will be grown as needed by the realloc 
+    chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc 
 above */
     chunk.size = 0;    /* no data at this point */
 
