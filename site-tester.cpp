@@ -10,6 +10,7 @@
 
 #include "Configuration.h"
 #include "File.h"
+#include "Parser.h"
 
 using namespace std; 
 
@@ -28,7 +29,11 @@ int main(int argc, char * argv[]){
     File sites(SITE_FILE); 
     vector<string> site_content = sites.get_content(); 
     search.print_content(); 
-    sites.print_content(); 
+    sites.print_content();
+    
+    Parser web_content(site_content[0]);  
+    string content = web_content.download(); 
+    cout<<content<<endl; 
 
 }
 
