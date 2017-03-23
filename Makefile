@@ -1,4 +1,4 @@
-CC= /usr/bin/g++
+CC= /afs/nd.edu/user14/csesoft/new/bin/g++
 CCFLAGS= -std=gnu++11
 LDFLAGS= -lcurl
 WFLAGS= -Wall

@@ -65,7 +65,7 @@ class Curl{
                          
                           /* check for errors */ 
             if(res != CURLE_OK) {
-                fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                fprintf(stderr, "Error: curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
             }
             else {

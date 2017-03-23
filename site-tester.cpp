@@ -1,3 +1,5 @@
+//Emily Obaditch and Lauren Ferrara
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -27,15 +29,11 @@ vector<string> site_content;
 vector<string> search_content; 
 ofstream fs; 
 int PERIOD_FETCH, NUM_FETCH, NUM_PARSE; 
-int TIMER =1; 
-int run=1; 
-int ROUND=1; 
-int curr_fetch_threads = 0; 
-int curr_parse_threads = 0; 
+int TIMER =1; //to set alarm to refetch
+int run=1; //to keep program going until signals
+int ROUND=1; //to write to different files per fetch batch
 pthread_t * p_fetch= (pthread_t *)malloc(sizeof(pthread_t)*NUM_FETCH); 
 pthread_t * p_parse = (pthread_t *)malloc(sizeof(pthread_t)*NUM_PARSE); 
-int i=0; 
-int j=0;
 string filename; 
 void *fetch_handler(void *); 
 void *parse_handler(void *); 
@@ -78,25 +76,9 @@ void term_handler(int s){
 }
 
 void int_handler(int s){
+    run = 0; 
     
-    for(int i=0; i<NUM_FETCH; i++){
-        pthread_cancel(p_fetch[i]); 
-        int jc = pthread_join(p_fetch[i], NULL); 
-        if(jc !=0){
-            cout<<"Thread join error"<<endl; 
-            exit(1); 
-        }
-    }
-    for(int i=0; i<NUM_PARSE; i++){
-        pthread_cancel(p_parse[i]); 
-        int jc = pthread_join(p_parse[i], NULL); 
-        if(jc !=0){
-            cout<<"Thread join error"<<endl; 
-            exit(1); 
-        }
-    }
     cout<<"Signal recieved to exit"<<endl; 
-    run = 0;  
 }
 
 
@@ -144,22 +126,23 @@ void * fetch_handler(void *unused){
 void * parse_handler(void * unused){
     int freq; 
     while(run){
-    time_t now = time(0); 
-    struct tm tstruct; 
-    char buf[80]; 
-    string output; 
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct); 
+        time_t now = time(0); 
+        struct tm tstruct; 
+        char buf[80]; 
+        string output; 
+        //Get Current Time
+        tstruct = *localtime(&now);
+        strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct); 
     
-        Node current = parse.pop(); 
-        Parser curr_parse(current.content); 
-        for(unsigned int i=0; i<search_content.size(); i++){
-            freq = curr_parse.parse(search_content[i]); 
-            string buf_s(buf); 
-            output = buf_s + "," + search_content[i] + "," + current.sitename + "," + to_string(freq);
-            parse.write(output, filename); 
+            Node current = parse.pop(); 
+            Parser curr_parse(current.content); 
+            for(unsigned int i=0; i<search_content.size(); i++){
+                freq = curr_parse.parse(search_content[i]); 
+                string buf_s(buf); 
+                output = buf_s + "," + search_content[i] + "," + current.sitename + "," + to_string(freq);
+                parse.write(output, filename); 
+            }
         }
-    }
     return 0; 
     
 }

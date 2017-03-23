@@ -7,6 +7,8 @@
 #include <queue>
 #include "Node.h"
 
+//Thread Safe Implementation of Queue
+
 class FetchQueue{
 
     public:
@@ -36,7 +38,7 @@ class FetchQueue{
     private:
         queue<Node> q; 
         pthread_mutex_t mutex; 
-        pthread_cond_t cond; 
+        pthread_cond_t cond; //broadcast that data is ready to be parsed
 
 }; 
 

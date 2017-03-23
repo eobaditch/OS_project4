@@ -8,12 +8,15 @@
 #include <fstream>
 #include "Node.h"
 
+//Thread safe implementation of Queue
+
 class ParseQueue{
 
     public:
         ParseQueue(){
             //ready = 0; 
         } 
+
         void push(Node curr_node){
             pthread_mutex_lock(&mutex);
             q.push(curr_node); 
@@ -46,7 +49,7 @@ class ParseQueue{
     private:
         queue<Node> q; 
         pthread_mutex_t mutex; 
-        pthread_cond_t cond; 
+        pthread_cond_t cond; //make sure that threads know when fetch data is availible
 
 };
 

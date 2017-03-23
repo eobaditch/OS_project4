@@ -15,6 +15,7 @@ class File{
         File(string f){
             const char * ifs = f.c_str(); 
             ifstream infile(ifs); 
+            //check that file is valid and exists
             if (!infile.good()){
                 cout<<"File error!"<<endl; 
                 exit(0); 

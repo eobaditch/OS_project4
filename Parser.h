@@ -13,6 +13,7 @@ class Parser{
             content = c; 
         }
        
+        //Find all substrings within string
         int parse(string keyword){
             int count = 0; 
             size_t pos = content.find(keyword, 0); //first occurence

@@ -26,9 +26,11 @@ class Configuration{
                 stringstream s(line); 
                 getline(s, param, '='); 
                 getline(s, value, '='); 
+                //Set parameters
                 if (param.compare("PERIOD_FETCH") == 0){
                     if(!value.compare("") == 0){
                         try{
+                            //if out of range set to default
                             PERIOD_FETCH = stoi(value);
                         } catch (std::out_of_range& e){
                             cout<<"Error, PERIOD_FETCH not in sensible range.  Set back to default."<<endl;
@@ -43,6 +45,7 @@ class Configuration{
                 } else if (param.compare("NUM_FETCH") == 0){
                     if(!value.compare("") == 0){
                         try{
+                            //if out of range set to default
                             NUM_FETCH = stoi(value);
                         } catch (std::out_of_range& e){
                             cout<<"Error, NUM_FETCH not in sensible range.  Set back to default."<<endl;
@@ -57,6 +60,7 @@ class Configuration{
                 } else if (param.compare("NUM_PARSE") == 0){
                     if(!value.compare("") == 0){
                         try{
+                            //if out of range set to default
                             NUM_PARSE = stoi(value);
                         } catch (std::out_of_range& e){
                             cout<<"Error, NUM_PARSE not in sensible range.  Set back to default."<<endl;
