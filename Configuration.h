@@ -12,31 +12,71 @@ using namespace std;
 class Configuration{
 
     public: 
-        Configuration(){
+        
+        Configuration(char * file){
+            ifstream infile(file); 
+            string line; 
             PERIOD_FETCH = 180; 
             NUM_FETCH = 1; 
             NUM_PARSE = 1; 
             SEARCH_FILE = "search.txt";
-            SITE_FILE = "sites.txt";            
-        }
-        Configuration(char * file){
-            ifstream infile(file); 
-            string line; 
+            SITE_FILE = "sites.txt";
             while(getline(infile, line)){
                 string param, value; 
                 stringstream s(line); 
                 getline(s, param, '='); 
                 getline(s, value, '='); 
                 if (param.compare("PERIOD_FETCH") == 0){
-                    PERIOD_FETCH = stoi(value); 
+                    if(!value.compare("") == 0){
+                        try{
+                            PERIOD_FETCH = stoi(value);
+                        } catch (std::out_of_range& e){
+                            cout<<"Error, PERIOD_FETCH not in sensible range.  Set back to default."<<endl;
+                            PERIOD_FETCH = 1; 
+                        }
+                    
+                    }
+                    if (PERIOD_FETCH > 10000000 || PERIOD_FETCH <=0 ){
+                        cout<<"Error, PERIOD_FETCH not in sensible range.  Set back to default."<<endl; 
+                        PERIOD_FETCH=180; 
+                    }
                 } else if (param.compare("NUM_FETCH") == 0){
-                    NUM_FETCH = stoi(value); 
+                    if(!value.compare("") == 0){
+                        try{
+                            NUM_FETCH = stoi(value);
+                        } catch (std::out_of_range& e){
+                            cout<<"Error, NUM_FETCH not in sensible range.  Set back to default."<<endl;
+                            NUM_FETCH = 1; 
+                        }
+
+                    }
+                    if (NUM_FETCH >8 || NUM_FETCH <=0){
+                        cout<<"Error, NUM_FETCH not in sensible range.  Set back to default."<<endl;
+                        NUM_FETCH = 1;
+                    }
                 } else if (param.compare("NUM_PARSE") == 0){
-                    NUM_PARSE = stoi(value); 
+                    if(!value.compare("") == 0){
+                        try{
+                            NUM_PARSE = stoi(value);
+                        } catch (std::out_of_range& e){
+                            cout<<"Error, NUM_PARSE not in sensible range.  Set back to default."<<endl;
+                            NUM_PARSE = 1; 
+                        }
+                    }
+                    if (NUM_PARSE >8 || NUM_PARSE <=0){
+                        cout<<"Error, NUM_PARSE not in sensible range.  Set back to default."<<endl;
+                        NUM_PARSE = 1;
+                    }
                 } else if (param.compare("SEARCH_FILE") == 0){
-                    SEARCH_FILE = value; 
+                    if(!value.compare("") == 0){
+                        SEARCH_FILE = value;
+                    }
                 } else if (param.compare("SITE_FILE") == 0){
-                    SITE_FILE = value; 
+                    if(!value.compare("") == 0){
+                        SITE_FILE = value; 
+                    }
+                } else{
+                    cout<<"Warning: unknown parameter"<<endl; 
                 }
 
             }

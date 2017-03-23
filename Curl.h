@@ -71,8 +71,6 @@ class Curl{
             else {
                 char * char_content= chunk.memory;
                 content = char_content;
-                //cout<<content<<endl; 
-                printf("%lu bytes retrieved\n", (long)chunk.size);
             }
                              
                               /* cleanup curl stuff */ 

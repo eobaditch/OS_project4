@@ -5,6 +5,7 @@
 #include <thread>
 #include <vector>
 #include <queue>
+#include <fstream>
 #include "Node.h"
 
 class ParseQueue{
@@ -31,6 +32,15 @@ class ParseQueue{
         }
         bool empty(){
             return q.empty(); 
+        }
+        void write(string content, string filename){
+            pthread_mutex_lock(&mutex); 
+            ofstream fs; 
+            fs.open(filename, ofstream::out | ofstream::app); 
+            fs<<content<<endl; 
+            fs.close(); 
+            pthread_mutex_unlock(&mutex); 
+
         }
 
     private:

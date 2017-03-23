@@ -35,7 +35,8 @@ int curr_parse_threads = 0;
 pthread_t * p_fetch= (pthread_t *)malloc(sizeof(pthread_t)*NUM_FETCH); 
 pthread_t * p_parse = (pthread_t *)malloc(sizeof(pthread_t)*NUM_PARSE); 
 int i=0; 
-int j=0; 
+int j=0;
+string filename; 
 void *fetch_handler(void *); 
 void *parse_handler(void *); 
 void createFetchThreads(void); 
@@ -43,14 +44,8 @@ void createParseThreads(void );
 
 void sig_handler(int s){
     fs.close(); 
-    string filename; 
     filename = to_string(ROUND) + ".csv";
-    cout<<"FILE: "<<filename<<endl; 
     fs.open(filename, ofstream::out | ofstream::app); 
-    
-  
-    cout<<"Begin alarm"<<endl; 
-
     //push all sites onto FetchQueue
     for (unsigned int i=0; i<site_content.size(); i++){
         Node curr = {site_content[i], ""}; 
@@ -62,13 +57,54 @@ void sig_handler(int s){
     signal(SIGALRM, sig_handler); 
 }
 
+void term_handler(int s){
+    
+    for(int i=0; i<NUM_FETCH; i++){
+        int jc = pthread_join(p_fetch[i], NULL); 
+        if(jc !=0){
+            cout<<"Thread join error"<<endl; 
+            exit(1); 
+        }
+    }
+    for(int i=0; i<NUM_PARSE; i++){
+        int jc = pthread_join(p_parse[i], NULL); 
+        if(jc !=0){
+            cout<<"Thread join error"<<endl; 
+            exit(1); 
+        }
+    }
+    cout<<"Signal recieved to exit"<<endl; 
+    run = 0;  
+}
+
+void int_handler(int s){
+    
+    for(int i=0; i<NUM_FETCH; i++){
+        pthread_cancel(p_fetch[i]); 
+        int jc = pthread_join(p_fetch[i], NULL); 
+        if(jc !=0){
+            cout<<"Thread join error"<<endl; 
+            exit(1); 
+        }
+    }
+    for(int i=0; i<NUM_PARSE; i++){
+        pthread_cancel(p_parse[i]); 
+        int jc = pthread_join(p_parse[i], NULL); 
+        if(jc !=0){
+            cout<<"Thread join error"<<endl; 
+            exit(1); 
+        }
+    }
+    cout<<"Signal recieved to exit"<<endl; 
+    run = 0;  
+}
+
 
 
 int main(int argc, char * argv[]){
     
     Configuration config(argv[1]); 
    
-    config.print_params(); 
     PERIOD_FETCH =  config.period_num();
     NUM_FETCH = config.fetch_num(); 
     NUM_PARSE = config.parse_num();
@@ -76,14 +112,14 @@ int main(int argc, char * argv[]){
     string SITE_FILE =  config.site_file(); 
 
     signal(SIGALRM, sig_handler); 
+    signal(SIGINT, int_handler); 
+    signal(SIGTERM, term_handler); 
     alarm(1); 
     
     File search(SEARCH_FILE); 
     search_content = search.get_content(); 
     File sites(SITE_FILE); 
     site_content = sites.get_content(); 
-    search.print_content(); 
-    sites.print_content();
     
     createFetchThreads(); 
     createParseThreads(); 
@@ -96,7 +132,6 @@ int main(int argc, char * argv[]){
 
 
 void * fetch_handler(void *unused){
-    cout<<"in fetch handler"<<endl; 
     while (run){
         Node current = fetch.pop(); 
         Curl curr_curl(current.sitename); 
@@ -107,7 +142,6 @@ void * fetch_handler(void *unused){
 }
 
 void * parse_handler(void * unused){
-    cout<<"in parse handler"<<endl; 
     int freq; 
     while(run){
     time_t now = time(0); 
@@ -123,8 +157,7 @@ void * parse_handler(void * unused){
             freq = curr_parse.parse(search_content[i]); 
             string buf_s(buf); 
             output = buf_s + "," + search_content[i] + "," + current.sitename + "," + to_string(freq);
-            fs<<output<<endl; 
-            cout<<output; 
+            parse.write(output, filename); 
         }
     }
     return 0; 
@@ -132,16 +165,25 @@ void * parse_handler(void * unused){
 }
 
 void createFetchThreads(void){
-
+    int rc; 
     for (int i=0; i<NUM_FETCH; i++){
-        pthread_create(&p_fetch[i], NULL, fetch_handler, NULL); 
+        rc = pthread_create(&p_fetch[i], NULL, fetch_handler, NULL); 
+        if (rc !=0){
+            cout<<"Thread creation error"<<endl; 
+            exit(1); 
+        }
     }
 
 }
 
 void createParseThreads(void){
+    int rc; 
     for(int i=0; i<NUM_PARSE; i++){
-        pthread_create(&p_parse[i], NULL, parse_handler, NULL); 
+        rc = pthread_create(&p_parse[i], NULL, parse_handler, NULL); 
+        if (rc !=0){
+            cout<<"Thread creation error"<<endl; 
+            exit(1); 
+        }
     }
 
 

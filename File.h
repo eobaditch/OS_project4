@@ -15,6 +15,10 @@ class File{
         File(string f){
             const char * ifs = f.c_str(); 
             ifstream infile(ifs); 
+            if (!infile.good()){
+                cout<<"File error!"<<endl; 
+                exit(0); 
+            }
             string line; 
             while(getline(infile, line)){
                 contents.push_back(line); 
