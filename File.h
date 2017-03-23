@@ -24,7 +24,7 @@ class File{
             return contents; 
         }
         void print_content(void){
-            for(int i=0; i<contents.size(); i++){
+            for(unsigned int i=0; i<contents.size(); i++){
                 cout<<contents[i]<<" "; 
             }
             cout<<endl; 

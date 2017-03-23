@@ -38,8 +38,7 @@ int i=0;
 int j=0; 
 void *fetch_handler(void *); 
 void *parse_handler(void *); 
-void createFetchThreads(void); 
-void createParseThreads(void ); 
+
 
 void sig_handler(int s){
     fs.close(); 
@@ -48,11 +47,20 @@ void sig_handler(int s){
     cout<<"FILE: "<<filename<<endl; 
     fs.open(filename, ofstream::out | ofstream::app); 
     
-  
-    cout<<"Begin alarm"<<endl; 
+    
+    while(curr_fetch_threads < NUM_FETCH){
+        pthread_create(&p_fetch[i], NULL, fetch_handler, NULL);
+        curr_fetch_threads++; 
+        i++; 
+    }
+    while(curr_parse_threads < NUM_PARSE){
+        pthread_create(&p_parse[i], NULL, parse_handler, NULL);
+        curr_parse_threads++; 
+        j++; 
+    } 
 
-    //push all sites onto FetchQueue
-    for (unsigned int i=0; i<site_content.size(); i++){
+    cout<<"Begin alarm"<<endl; 
+        for (unsigned int i=0; i<site_content.size(); i++){
         Node curr = {site_content[i], ""}; 
         fetch.push(curr); 
     }
@@ -85,13 +93,18 @@ int main(int argc, char * argv[]){
     search.print_content(); 
     sites.print_content();
     
-    createFetchThreads(); 
-    createParseThreads(); 
-   
-    while(run){
-        //continue to run 
+    //Parser web_content(site_content[0]);  
+    //string content = web_content.download(); 
+    for (int i=0; i<NUM_FETCH; i++){
+        //create threads
+        //pthread_create(&p_fetch[i], NULL, fetch_handler, NULL); 
     }
-     
+    for(int i=0; i<NUM_PARSE; i++){
+        pthread_create(&p_parse[i], NULL, parse_handler, NULL); 
+    }
+
+    while(run){
+    }
 }
 
 
@@ -103,46 +116,36 @@ void * fetch_handler(void *unused){
         current.content = curr_curl.download(); 
         parse.push(current); 
     }
+    pthread_exit(NULL); 
+    curr_fetch_threads--; 
     return 0; 
 }
 
 void * parse_handler(void * unused){
     cout<<"in parse handler"<<endl; 
     int freq; 
-    while(run){
     time_t now = time(0); 
     struct tm tstruct; 
     char buf[80]; 
+    //char * output = new char[2048]; 
     string output; 
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct); 
-    
+    //ile(run){
         Node current = parse.pop(); 
         Parser curr_parse(current.content); 
         for(unsigned int i=0; i<search_content.size(); i++){
             freq = curr_parse.parse(search_content[i]); 
+            //sprintf(output, "%s,%s,%s,%d\n", buf, search_content[i], current.sitename, freq); 
             string buf_s(buf); 
             output = buf_s + "," + search_content[i] + "," + current.sitename + "," + to_string(freq);
             fs<<output<<endl; 
             cout<<output; 
+            //fs.write(output.c_str(), 2048); 
         }
-    }
+   // 
+    pthread_exit(NULL); 
+    curr_parse_threads--; 
     return 0; 
     
-}
-
-void createFetchThreads(void){
-
-    for (int i=0; i<NUM_FETCH; i++){
-        pthread_create(&p_fetch[i], NULL, fetch_handler, NULL); 
-    }
-
-}
-
-void createParseThreads(void){
-    for(int i=0; i<NUM_PARSE; i++){
-        pthread_create(&p_parse[i], NULL, parse_handler, NULL); 
-    }
-
-
 }

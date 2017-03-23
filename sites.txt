@@ -1,1 +1,4 @@
 http://www.und.com
+http://www.capsim.com
+http://www.villanova.edu
+http://www.vanderbilt.edu
