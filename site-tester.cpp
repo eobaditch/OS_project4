@@ -109,7 +109,8 @@ int main(int argc, char * argv[]){
     while(run){
         //continue to run 
     }
-     
+    free(p_fetch); 
+    free(p_parse); 
 }
 
 
